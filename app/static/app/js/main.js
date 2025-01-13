@@ -1046,14 +1046,14 @@ $(".product-form__cart-submit").on("click", function () {
 });
 
 
-document.getElementById("checkout-form").addEventListener("submit", function (event) {
-    const termsCheckbox = document.getElementById("cartTearm");
+// document.getElementById("checkout-form").addEventListener("submit", function (event) {
+//     const termsCheckbox = document.getElementById("cartTearm");
 
-    if (!termsCheckbox.checked) {
-        event.preventDefault(); // Stop form submission
-        alert("Please agree to the terms and conditions before proceeding.");
-    }
-});
+//     if (!termsCheckbox.checked) {
+//         event.preventDefault(); // Stop form submission
+//         alert("Please agree to the terms and conditions before proceeding.");
+//     }
+// });
 
 
 	
