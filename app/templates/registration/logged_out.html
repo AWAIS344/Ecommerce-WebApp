@@ -1,0 +1,21 @@
+{% extends "base.html" %} {% load static %} {% block title %}BELLE | LOGGED OUT {% endblock title %} {% block content %}
+<!--Body Content-->
+ <!--Body Content-->
+  <div id="page-content">        
+    <!-- Lookbook Start -->
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12">	
+                <div class="empty-page-content text-center">
+                    <h1>You Have Been Logout </h1>
+                    <p>How are your Experience With Us!</p>
+                    <p><a href="{% url "login" %}" class="btn btn--has-icon-after">Login<i class="fa fa-caret-right" aria-hidden="true"></i></a></p>
+                    <p><a href="{% url "home" %}" class="btn btn--has-icon-after">Continue To Home Page<i class="fa fa-caret-right" aria-hidden="true"></i></a></p>
+                  </div>
+            </div>
+        </div>
+    </div>
+    <!-- Lookbook Start -->
+</div>
+<!--End Body Content-->
+{% endblock content %}

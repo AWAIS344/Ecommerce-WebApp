@@ -1,0 +1,112 @@
+{% extends "base.html" %} {% load static %} {% block title %} BELLE | REGISTER
+{% endblock title %} {% block content %}
+<!--Body Content-->
+<div id="page-content">
+  <!--Page Title-->
+  <div class="page section-header text-center">
+    <div class="page-title">
+      <div class="wrapper"><h1 class="page-width">Create an Account</h1></div>
+    </div>
+  </div>
+  <!--End Page Title-->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-sm-12 col-md-6 col-lg-6 main-col offset-md-3">
+        <div class="mb-4">
+          <form
+            method="POST"
+            action="{% url 'register' %}"
+            id="CustomerLoginForm"
+            accept-charset="UTF-8"
+            class="contact-form"
+          >
+            {% csrf_token %} 
+            {% if form.non_field_errors %} 
+            {% for error in form.non_field_errors %}
+            <div>
+              <p>{{ error }}</p>
+            </div>
+            {% endfor %} 
+            {% endif %}
+            <div class="row">
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                  <label for="FirstName">User Name </label>
+                  {{ form.username }}
+                </div>
+                {% if form.username.errors %}
+                <div class="field-errors">
+                  <p>{{ form.username.errors.as_text }}</p>
+                </div>
+                {% endif %}
+              </div>
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                  <label for="FirstName">First Name</label>
+                  {{ form.first_name }}
+                </div>
+                {% if form.first_name.errors %}
+                <div class="field-errors">
+                  <p>{{ form.first_name.errors.as_text }}</p>
+                </div>
+                {% endif %}
+              </div>
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                  <label for="LastName">Last Name</label>
+                  {{ form.last_name }}
+                </div>
+                {% if form.last_name.errors %}
+                <div class="field-errors">
+                  <p>{{ form.last_name.errors.as_text }}</p>
+                </div>
+                {% endif %}
+              </div>
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                  <label for="CustomerEmail">Email</label>
+                  {{ form.email }}
+                </div>
+                {% if form.email.errors %}
+                <div class="field-errors">
+                  <p>{{ form.email.errors.as_text }}</p>
+                </div>
+                {% endif %}
+              </div>
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                  <label for="CustomerPassword">Password</label>
+                  {{ form.password1 }}
+                </div>
+                {% if form.password1.errors %}
+                <div class="field-errors">
+                  <p>{{ form.password1.errors.as_text }}</p>
+                </div>
+                {% endif %}
+              </div>
+              <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                  <label for="CustomerPassword">Confirm Password</label>
+                  {{ form.password2 }}
+                </div>
+                {% if form.password2.errors %}
+                <div class="field-errors">
+                  <p>{{ form.password2.errors.as_text }}</p>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="row">
+              <div class="text-center col-12 col-sm-12 col-md-12 col-lg-12">
+                <input type="submit" class="btn mb-3" value="Create Account" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--End Body Content-->
+{% endblock content %}
