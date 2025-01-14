@@ -8,7 +8,7 @@ urlpatterns = [
     path('add-to-cart/', views.AddToCart, name='add_to_cart'),
     path('update-cart-item/', views.update_cart_item, name='update_cart_item'),
     path("cart",views.CartView,name="cart"),
-    # path("checkout",views.checkout,name="checkout"),
+    path("checkout",views.Checkout,name="checkout"),
     path("aboutus",views.AboutUs,name="aboutus"),
     path("contactus",views.Contactus,name="contactus"),
     path("404",views.Not_found_Error,name="404"),
@@ -16,4 +16,6 @@ urlpatterns = [
     path("blog",views.Blog,name="blog"),
     path("accounts/register",views.Register,name="register"),
     path("wishlist",views.Wishlist,name="wishlist"),
+    path('thankyou/', views.order_confirmation, name='order_confirmation'),
+    
 ]

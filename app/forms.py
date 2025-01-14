@@ -5,7 +5,7 @@ import django.db.models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from app.models import Subscribe, Review,Messages
+from app.models import Subscribe, Review,Messages ,Checkout
 
 
 class SubscribeForm(forms.ModelForm):
@@ -104,3 +104,24 @@ class MessageForm(forms.ModelForm):
         # self.fields['rating'].widget.attrs['placeholder']='Email'
         self.fields['phone_number'].widget.attrs['placeholder']='+923********* ( Optional )'
         self.fields['message'].widget.attrs['placeholder']='e.g Can I get more info about this Product'
+
+     
+class CheckoutForm(forms.ModelForm):
+    class Meta:
+        model=Checkout
+        fields={"first_name","last_name","email","phone_number","address","appartment","city","postal_code","country","state","notes"}
+    def __init__(self,*args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].widget.attrs['placeholder']='e.g Awais Ali' 
+        self.fields['last_name'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['email'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['phone_number'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['address'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['appartment'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['city'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['postal_code'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['country'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['state'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['notes'].widget.attrs['placeholder']='e.g Awais Ali'
+        self.fields['country'].widget.attrs['placeholder']='e.g Awais Ali'
+    

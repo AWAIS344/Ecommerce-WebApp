@@ -72,6 +72,16 @@
               </tr>
               {% endfor %}
           </tbody>
+          <div class="row">
+              <span class="col-12 col-sm-6 cart__subtotal-title"><strong>Subtotal</strong></span>
+              <span
+                  class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"
+                  id="total-price"
+              >
+                  <span class="money">{{ total_price }}</span>
+              </span>
+          </div>
+          
             <tfoot>
               <tr>
                 <td colspan="3" class="text-left">
@@ -583,56 +593,72 @@
         </form>
       </div>
       <div class="col-12 col-sm-12 col-md-4 col-lg-4 cart__footer">
-        <div class="cart-note">
-          <div class="solid-border">
-            <h5>
-              <label
-                for="CartSpecialInstructions"
-                class="cart-note__label small--text-center"
-                >Add a note to your order</label
-              >
-            </h5>
-            <textarea
-              name="note"
-              id="CartSpecialInstructions"
-              class="cart-note__input"
-            ></textarea>
-          </div>
-        </div>
-        <div class="solid-border">
-          <div class="row">
-    <span class="col-12 col-sm-6 cart__subtotal-title"><strong>Subtotal</strong></span>
-    <span
-        class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"
-        id="total-price"
-    >
-        <span class="money">{{ total_price }}</span>
-    </span>
-</div>
-          <div class="cart__shipping">
-            Shipping &amp; taxes calculated at checkout
-          </div>
-          <p class="cart_tearm">
-            <label>
-              <input
-                type="checkbox"
-                name="tearm"
-                id="cartTearm"
-                class="checkbox"
-                value="tearm"
-                required=""
-              />
-              I agree with the terms and conditions</label
-            >
-          </p>
-          <input
-            type="submit"
-            name="checkout"
-            id="cartCheckout"
-            class="btn btn--small-wide checkout"
-            value="Checkout"
-            disabled="disabled"
-          />
+        <form method="POST" action="{% url 'cart' %}">
+            {% csrf_token %}
+    
+            <!-- Cart Note -->
+            <div class="cart-note">
+                <div class="solid-border">
+                    <h5>
+                        <label
+                            for="CartSpecialInstructions"
+                            class="cart-note__label small--text-center"
+                        >
+                            Add a note to your order
+                        </label>
+                    </h5>
+                    <textarea
+                        name="note"
+                        id="CartSpecialInstructions"
+                        class="cart-note__input"
+                        placeholder="Write your note here..."
+                    ></textarea>
+                </div>
+            </div>
+    
+            <!-- Terms and Conditions -->
+            <div class="solid-border mt-3">
+                <div class="form-check">
+                    <input
+                        type="checkbox"
+                        name="terms"
+                        id="terms"
+                        class="form-check-input"
+                    />
+                    <label
+                        for="terms"
+                        class="form-check-label"
+                    >
+                        I agree to the <a href="#">terms and conditions</a>.
+                    </label>
+                </div>
+            </div>
+    
+            <!-- Subtotal -->
+            <div class="solid-border mt-3">
+                <div class="row">
+                    <span class="col-12 col-sm-6 cart__subtotal-title">
+                        <strong>Subtotal</strong>
+                    </span>
+                    <span
+                        class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"
+                        id="total-price"
+                    >
+                        <span class="money">{{ total_price }}</span>
+                    </span>
+                </div>
+            </div>
+    
+            <!-- Submit Button -->
+            <div class="mt-3 text-center">
+                <button type="submit" class="btn btn-primary w-100">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </form>
+    </div>
+    
+          
           <div class="paymnet-img">
             <img
               src="{% static 'app/images/payment-img.jpg' %}"

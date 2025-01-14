@@ -145,6 +145,8 @@ class CartItem(models.Model):
     color = models.CharField(max_length=100)
     size = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=1)
+    note = models.TextField(blank=True, null=True)  # Optional notes for the cart item
+    terms_accepted = models.BooleanField(default=False)  # Terms acceptance status
 
     # Ensure that the combination of user, product, color, and size is unique
     class Meta:
@@ -152,6 +154,78 @@ class CartItem(models.Model):
             models.UniqueConstraint(fields=['user', 'product', 'color', 'size'], name='unique_cart_item')
         ]
 
+
+class Checkout(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # item=models.ForeignKey(CartItem,on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50,blank=True,null=True)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=13)
+    address = models.CharField(max_length=255)
+    appartment=models.CharField(max_length=50  , blank=True,null=True)
+    city = models.CharField(max_length=50)
+    postal_code = models.CharField(max_length=10, blank=True, null=True)
+    country = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    notes = models.TextField(blank=True, null=True)  # Optional notes for the order
+    # terms_accepted = models.BooleanField(default=False)  # Terms acceptance status
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.created_at}"
+    
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # User placing the order
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=13)
+    address = models.CharField(max_length=255)
+    apartment = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=50)
+    postal_code = models.CharField(max_length=10, blank=True, null=True)
+    country = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    notes = models.TextField(blank=True, null=True)  # Optional notes for the order
+    terms_accepted = models.BooleanField(default=False)  # Terms acceptance status
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)  # Total price of the order
+    status = models.CharField(
+        max_length=50,
+        choices=[
+            ('pending', 'Pending'),
+            ('processing', 'Processing'),
+            ('shipped', 'Shipped'),
+            ('delivered', 'Delivered'),
+            ('cancelled', 'Cancelled')
+        ],
+        default='pending'
+    )  # Status of the order
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Order #{self.id} by {self.first_name} {self.last_name}"
+
+    # This method calculates the total price for the order from related OrderItems
+    def calculate_total_price(self):
+        total = sum(item.price * item.quantity for item in self.orderitem_set.all())
+        self.total_price = total
+        self.save()
+    
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)  # Link to the Order
+    product = models.ForeignKey(Products, on_delete=models.CASCADE)  # Link to the Product
+    quantity = models.PositiveIntegerField()  # Quantity of the product in the order
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # Price at the time of order
+    color = models.CharField(max_length=100)  # Color selected by the user
+    size = models.CharField(max_length=100)  # Size selected by the user
+
+    def __str__(self):
+        return f'{self.product.name} - {self.quantity} x {self.price}'
+    
 
 
 

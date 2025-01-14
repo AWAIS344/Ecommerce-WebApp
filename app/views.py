@@ -1,5 +1,5 @@
 
-from app.models import Products,ProductImage , Size ,Color , CartItem
+from app.models import Products,ProductImage , Size ,Color , CartItem , Order , OrderItem
 from django.db.models import Prefetch
 from django.shortcuts import render , redirect , get_object_or_404 , HttpResponse
 from django.http import HttpResponseRedirect
@@ -12,7 +12,7 @@ from django.contrib import messages  # For user feedback
 from django.db.models import Avg
 
 from django.contrib.auth import login 
-from app.forms import SubscribeForm , User_Reg , PriceFilterForm , ReviewForm, MessageForm 
+from app.forms import SubscribeForm , User_Reg , PriceFilterForm , ReviewForm, MessageForm,CheckoutForm
 
 # Create your views here.
 
@@ -158,35 +158,42 @@ def Product(request,slug):
     return render(request,"app/product.html",context)
 
 def CartView(request):
-    if request.method == "POST":
-        # Handle form submission
-        note = request.POST.get("note", "")
-        terms = request.POST.get("terms", None)
+    if request.method == 'POST':
+        note = request.POST.get("note", "").strip()
+        terms = request.POST.get("terms") == 'on'
 
         if not terms:
-            # Add an error message and reload the cart page
             messages.error(request, "You must agree to the terms and conditions.")
-            return redirect("cart")  # Replace 'cart' with your URL name for CartView
+            return redirect("cart")
 
-        # Save the note and terms in the session (or pass it directly)
-        request.session["note"] = note
+        # Update all cart items for the user
+        cart_items = CartItem.objects.filter(user=request.user)
 
-        # Redirect to the checkout page
-        return redirect("checkout")  # Replace 'checkout' with your URL name for the checkout view
+        # --- Check if cart is empty ---
+        if not cart_items.exists():
+            messages.error(request, "Your cart is empty. Please add items before checkout.")
+            return redirect("cart")
+
+        # If cart is not empty, proceed to save the note/terms
+        for cart_item in cart_items:
+            cart_item.note = note
+            cart_item.terms_accepted = terms
+            cart_item.save()
+
+        # Now that everything is saved, redirect to checkout
+        return redirect("checkout")
 
     # Normal GET request to display the cart
     cart_items = CartItem.objects.filter(user=request.user)
-    total_price = 0
-
-    for item in cart_items:
-        item.subtotal = item.product.price * item.quantity
-        total_price += item.subtotal
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     context = {
         "cart_items": cart_items,
         "total_price": total_price,
     }
     return render(request, "app/cart.html", context)
+
+
 
 def update_cart_item(request):
     if request.method == "POST":
@@ -213,39 +220,7 @@ def update_cart_item(request):
             return JsonResponse({"error": "Cart item not found"}, status=404)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
-# def AddToCart(request):
-#     if request.method == "POST":
-#         product_slug = request.POST.get("slug")
-#         quantity = int(request.POST.get("quantity", 1))
-#         color = request.POST.get("color")
-#         size = request.POST.get("size")
 
-#         # Validate color and size
-#         if not color or not size:
-#             return JsonResponse({"error": "Color and size are required."}, status=400)
-        
-#         product = get_object_or_404(Products, slug=product_slug)
-
-#         # Check if a CartItem with the same product, color, and size already exists
-#         cart_item, created = CartItem.objects.get_or_create(
-#             user=request.user,
-#             product=product,
-#             color=color,
-#             size=size,
-#         )
-        
-#         # If the item was newly created, set the quantity
-#         if created:
-#             cart_item.quantity = quantity
-#         else:
-#             # If the item already exists, update the quantity
-#             cart_item.quantity += quantity
-        
-#         cart_item.save()  # Save the updated cart item
-
-#         return JsonResponse({"message": "Product added to cart", "quantity": cart_item.quantity})
-    
-#     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
 def AddToCart(request):
@@ -287,6 +262,87 @@ def AddToCart(request):
 
 
 
+def Checkout(request):
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            # Save checkout details
+            checkout = form.save(commit=False)
+            checkout.user = request.user
+            checkout.save()
+
+            # Create the Order object
+            order = Order.objects.create(
+                user=request.user,
+                first_name=checkout.first_name,
+                last_name=checkout.last_name,
+                email=checkout.email,
+                phone_number=checkout.phone_number,
+                address=checkout.address,
+                apartment=checkout.appartment,  # notice 'apartment' in Order model
+                city=checkout.city,
+                postal_code=checkout.postal_code,
+                country=checkout.country,
+                state=checkout.state,
+                notes=checkout.notes,
+                terms_accepted=False,  # or handle from form if you like
+                total_price=0,         # we will calculate later
+            )
+
+            # Get all cart items for this user
+            cart_items = CartItem.objects.filter(user=request.user)
+
+            # Create OrderItems from the CartItems
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price,
+                    color=item.color,
+                    size=item.size,
+                )
+
+            # Calculate total price in the Order and save
+            order.calculate_total_price()
+
+            # Clear the cart
+            cart_items.delete()
+
+            messages.success(request, 'Your order has been placed successfully!')
+            return redirect('order_confirmation')
+        else:
+            messages.error(request, 'Please fill in all the required fields.')
+            return redirect('checkout')
+    else:
+        form = CheckoutForm()
+
+    # --- Pass cart items and totals into the context so you can display them ---
+    cart_items = CartItem.objects.filter(user=request.user)
+    for cart_item in cart_items:
+        cart_item.subtotal = cart_item.quantity * cart_item.product.price
+
+    # Example of computing subtotal + shipping:
+    shipping_cost = 50
+    subtotal = sum(item.product.price * item.quantity for item in cart_items)
+    grand_total = subtotal + shipping_cost
+
+    context = {
+        'form': form,
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'shipping_cost': shipping_cost,
+        'grand_total': grand_total,
+    }
+
+    return render(request, 'app/checkout.html', context)
+
+# views.py
+
+def order_confirmation(request):
+    return render(request, 'app/thanks.html')
+
+
 def AboutUs(request):
     context={}
     return render(request,"app/aboutus.html",context)
@@ -303,21 +359,6 @@ def Blog(request):
     context={}
     return render(request,"app/blog.html",context)
 
-# def Login(request):
-#     context={}
-#     return render(request,"registration/login.html",context)
-
-# def Register(request):
-#     form=User_Reg()
-#     if request.POST:
-#         form=User_Reg(request.POST)
-#         if form.is_valid():
-#             print("hi")
-#             user=form.save()
-#             login(request,user)
-#             return redirect("/")
-#     context={"form":form}
-#     return render(request,'registration/create_account.html',context)
 
 def Register(request):
     print("View triggered")  # Debug: Check if the view is accessed
