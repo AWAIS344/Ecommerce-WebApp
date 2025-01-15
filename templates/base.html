@@ -17,6 +17,41 @@
 <link rel="stylesheet" href="{% static 'fonts/annimex-icons0f29.ttf' %}">
 <link rel="stylesheet" href="{% static 'fonts/annimex-icons0f29.woff' %}">
 
+<style>
+  /* Align size buttons horizontally */
+  .filter-size.swatch-list ul {
+    display: flex; /* Enable flexbox for horizontal alignment */
+    flex-wrap: wrap; /* Allow wrapping if there are too many items */
+    justify-content: flex-start; /* Align items to the left */
+    gap: 10px; /* Add spacing between buttons */
+    padding: 0; /* Remove default padding from the <ul> */
+    margin: 0; /* Remove default margin from the <ul> */
+    list-style: none; /* Remove default list styles */
+  }
+  
+  /* Size button styles */
+  .filter-size .swatch-btn {
+    display: inline-block;
+    background-color: #ffffff; /* Light gray background */
+    border: 1px solid #ccc; /* Border for the button */
+    border-radius: 0px; /* Rounded edges */
+    padding: 1px 8px; /* Button padding */
+    text-align: center; /* Center text */
+    cursor: pointer; /* Pointer cursor for buttons */
+    transition: background-color 0.3s ease;
+  }
+  
+  .filter-size .swatch-btn:hover {
+    background-color: #e0e0e0; /* Slightly darker background on hover */
+  }
+  
+  .filter-size .swatch-btn.checked {
+    background-color: #333; /* Dark background for selected buttons */
+    color: #fff; /* White text for selected buttons */
+  }
+  
+
+</style>
     <!-- Favicon -->
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
@@ -1433,7 +1468,7 @@
                 >
               </li>
               <li><a href="{% url "contactus" %}" class="site-nav">Contact Us</a></li>
-              <li><a href="faqs.html" class="site-nav">FAQs</a></li>
+              <li><a href="{% url "faq" %}" class="site-nav">FAQs</a></li>
               <li>
                 <a href="lookbook1.html" class="site-nav"
                   >Lookbook<i class="anm anm-plus-l"></i
@@ -1495,8 +1530,10 @@
     </div>
   </div>
   <div class="container">
+
     <div class="row">
       <div class="col-12 col-sm-12 col-md-12 col-lg-12 main-col">
+        
         <div id="accordionExample">
           <h2 class="title h2">Pyment and Returns</h2>
           <div class="faq-body">
@@ -1788,7 +1825,7 @@
                   <h4 class="h4">Customer Services</h4>
                   <ul>
                     <li><a href="#">Request Personal Data</a></li>
-                    <li><a href="#">FAQ's</a></li>
+                    <li><a href="{% url "faq" %}">FAQ's</a></li>
                     <li><a href="#">Contact Us</a></li>
                     <li><a href="#">Orders and Returns</a></li>
                     <li><a href="#">Support Center</a></li>
@@ -2297,3 +2334,4 @@
 
   <!-- belle/home2-default.html   11 Nov 2019 12:23:42 GMT -->
 </html>
+

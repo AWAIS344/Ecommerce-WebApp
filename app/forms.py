@@ -5,7 +5,7 @@ import django.db.models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from app.models import Subscribe, Review,Messages ,Checkout
+from app.models import Subscribe, Review,Messages ,Checkout,Payment
 
 
 class SubscribeForm(forms.ModelForm):
@@ -124,4 +124,16 @@ class CheckoutForm(forms.ModelForm):
         self.fields['state'].widget.attrs['placeholder']='e.g Awais Ali'
         self.fields['notes'].widget.attrs['placeholder']='e.g Awais Ali'
         self.fields['country'].widget.attrs['placeholder']='e.g Awais Ali'
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = [
+            'method',
+            'card_name',
+            'card_type',
+            'card_number',
+            'card_cvv',
+            'card_expiry',
+        ]
     

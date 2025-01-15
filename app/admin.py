@@ -13,6 +13,8 @@ admin.site.register(Color)
 admin.site.register(Brand)
 admin.site.register(Messages)
 admin.site.register(CartItem)
+admin.site.register(Tag)
+admin.site.register(FAQs)
 
 
 

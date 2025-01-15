@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% load static %} {% block title %} BELLE | SHOP {% endblock title %} {% block content %}
+<div id="page-content">
+    <!--Page Title-->
+    <div class="page section-header text-center">
+        <div class="page-title">
+            <div class="wrapper"><h1 class="page-width">FAQs</h1></div>
+          </div>
+    </div>
+    <div class="container">
+        {% for i  in faq %}
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 main-col">
+                <div id="accordionExample">
+                    <h2 class="title h2">{{i.title}}</h2>
+                    <div class="faq-body">
+                        <h4 class="panel-title" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">{{i.question}}</h4>
+                        <div id="collapseOne" class="collapse panel-content" data-parent="#accordionExample">{{i.answer}}</div>
+                    </div>
+                    
+                    
+                </div>
+               </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+</div>
+<!--End Body Content-->
+{% endblock content %}

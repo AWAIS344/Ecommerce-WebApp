@@ -681,6 +681,29 @@ function color_swatches() {
 color_swatches();
 
 
+function brand_filter() {
+	// Submit the form whenever a brand checkbox is toggled
+	document.querySelectorAll("#brand-filter-form input[type='checkbox']").forEach(function(checkbox) {
+	  checkbox.addEventListener('change', function() {
+		document.getElementById("brand-filter-form").submit();
+	  });
+	});
+  
+	// Reset: uncheck all, then submit
+	const resetBtn = document.getElementById('reset-brand-btn');
+	if (resetBtn) {
+	  resetBtn.addEventListener('click', function(event) {
+		event.preventDefault();
+		document.querySelectorAll("#brand-filter-form input[type='checkbox']").forEach(function(cb) {
+		  cb.checked = false;
+		});
+		document.getElementById("brand-filter-form").submit();
+	  });
+	}
+  }
+  
+  // Initialize
+  brand_filter();
 
 /*-----------------------------------
    15. Size Button Filter

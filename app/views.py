@@ -1,5 +1,5 @@
-
-from app.models import Products,ProductImage , Size ,Color , CartItem , Order , OrderItem
+ 
+from app.models import Products,ProductImage , Size ,Color , CartItem , Order , OrderItem,Brand,Tag,FAQs
 from django.db.models import Prefetch
 from django.shortcuts import render , redirect , get_object_or_404 , HttpResponse
 from django.http import HttpResponseRedirect
@@ -12,7 +12,7 @@ from django.contrib import messages  # For user feedback
 from django.db.models import Avg
 
 from django.contrib.auth import login 
-from app.forms import SubscribeForm , User_Reg , PriceFilterForm , ReviewForm, MessageForm,CheckoutForm
+from app.forms import SubscribeForm , User_Reg , PriceFilterForm , ReviewForm, MessageForm,CheckoutForm , PaymentForm
 
 # Create your views here.
 
@@ -39,11 +39,21 @@ def Homepage(request):
 
 def shoppage(request):
     # Get all products
+
     products = Products.objects.all()
+    all_tags=Tag.objects.all()
 
-    print(products)
+    all_brands = Brand.objects.all()
+    selected_tags = request.GET.getlist('tag')
 
 
+    if selected_tags:
+        products = products.filter(tag__slug__in=selected_tags).distinct()
+
+    selected_brands = request.GET.getlist('brand')
+
+    if selected_brands:
+        products = products.filter(brand__in=selected_brands)
 
     # Get all sizes for the size filter
     all_sizes = Size.objects.all().order_by('name')
@@ -84,6 +94,7 @@ def shoppage(request):
 
     # Pass context data to template
     context = {
+        "all_brands":all_brands,        
         "products": products,
         "stars_range": range(1, 6),  # To loop for 1-5 stars in the template
         "all_sizes": all_sizes,
@@ -91,12 +102,17 @@ def shoppage(request):
         "price_filter_form": price_form,  # Include the price filter form in context
         "all_colors":all_colors,
         "selected_colors":selected_colors,
+        'selected_brands': selected_brands,
+        "all_tags":all_tags,
         }
     
     return render(request, "app/shop.html", context)
 
+
+
 def Product(request,slug):
     product = get_object_or_404(Products, slug=slug)
+    variants = product.variants.select_related('color', 'size')
     form=ReviewForm()
     msgForm=MessageForm()
 
@@ -154,7 +170,7 @@ def Product(request,slug):
  
 
     context={"products":product,"percentage":percentage,"saving":saving,"sizes":sizes,"stars_range": range(1, 6),'average_rating': avg_rating,  # Rounded average rating
-        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors}
+        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors,"variants":variants}
     return render(request,"app/product.html",context)
 
 def CartView(request):
@@ -263,9 +279,11 @@ def AddToCart(request):
 
 
 def Checkout(request):
+    payment_form=PaymentForm()
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
-        if form.is_valid():
+        payment_form = PaymentForm(request.POST)
+        if form.is_valid() and payment_form.is_valid():
             # Save checkout details
             checkout = form.save(commit=False)
             checkout.user = request.user
@@ -288,6 +306,10 @@ def Checkout(request):
                 terms_accepted=False,  # or handle from form if you like
                 total_price=0,         # we will calculate later
             )
+
+            payment = payment_form.save(commit=False)
+            payment.order = order
+            payment.save()
 
             # Get all cart items for this user
             cart_items = CartItem.objects.filter(user=request.user)
@@ -328,6 +350,7 @@ def Checkout(request):
     grand_total = subtotal + shipping_cost
 
     context = {
+        'payment_form': payment_form,
         'form': form,
         'cart_items': cart_items,
         'subtotal': subtotal,
@@ -338,6 +361,12 @@ def Checkout(request):
     return render(request, 'app/checkout.html', context)
 
 # views.py
+
+def FAQ(request):
+    
+    faq=FAQs.objects.all()
+    context={"faq":faq}
+    return render(request, 'app/Faqs.html', context)
 
 def order_confirmation(request):
     return render(request, 'app/thanks.html')

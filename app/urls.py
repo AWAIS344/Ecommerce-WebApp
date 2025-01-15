@@ -10,6 +10,7 @@ urlpatterns = [
     path("cart",views.CartView,name="cart"),
     path("checkout",views.Checkout,name="checkout"),
     path("aboutus",views.AboutUs,name="aboutus"),
+    path("faq",views.FAQ,name="faq"),
     path("contactus",views.Contactus,name="contactus"),
     path("404",views.Not_found_Error,name="404"),
     path("commingsoon",views.Comming_Soon,name="Coming_Soon"),

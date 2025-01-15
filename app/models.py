@@ -59,6 +59,7 @@ class Products(models.Model):
     collections=models.CharField(max_length=50)
     main_image= models.ImageField(upload_to='products/')  # Shown by default
     hover_image= models.ImageField(upload_to='products/')  # Shown on hover
+    tag=models.ManyToManyField('Tag',related_name='products',blank=True)
     sizes = models.ManyToManyField(Size, related_name='products', blank=True)
     color = models.ManyToManyField(Color, related_name='productscolor', blank=True)
     brand=models.ForeignKey(Brand, on_delete=models.CASCADE,related_name='brand',blank=True)
@@ -80,13 +81,14 @@ class Products(models.Model):
         verbose_name_plural = "Products"  # Correct plural form
 
 
-class ProductImage(models.Model):
-    product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='products/')
-    alt_text = models.CharField(max_length=255, blank=True, null=True)  # Optional for accessibility
-    order = models.IntegerField(default=0)
-    
+class FAQs(models.Model):
+    title=models.CharField(max_length=100)
+    question=models.CharField(max_length=50)
+    answer=models.TextField()
 
+    class Meta:
+        verbose_name = "FAQ"  # Correct singular form
+        verbose_name_plural = "fAQs"  # Correct plural form
 
 class Review(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='reviews')
@@ -107,6 +109,20 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.product.name} - {self.rating}'
+    
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100)
+    description=models.CharField(max_length=100)
+    slug=models.SlugField(max_length=100,unique=True ,blank=True)
+
+    def save(self,*args, **kwargs):
+        if not self.id:
+            self.slug=slugify(self.name)
+        return super(Tag,self).save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.name
 
 class ProductVariants(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='variants')
@@ -124,6 +140,14 @@ class ProductVariants(models.Model):
         return f"{self.product.name} - {self.color.name} - {self.size.name}"
     
 
+class ProductImage(models.Model):
+    variant = models.ForeignKey(ProductVariants, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='product_images/')
+    is_main = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.variant.product.name} - {self.variant.color.name} Image"
+    
 class Messages(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='message')
     user=models.ForeignKey(User,on_delete=models.CASCADE)
@@ -226,6 +250,32 @@ class OrderItem(models.Model):
     def __str__(self):
         return f'{self.product.name} - {self.quantity} x {self.price}'
     
+
+class Payment(models.Model):
+    PAYMENT_CHOICES = [
+        ('bank_transfer', 'Direct Bank Transfer'),
+        ('cheque', 'Cheque Payment'),
+        ('paypal', 'PayPal'),
+        ('card', 'Credit Card'),
+    ]
+
+    order = models.OneToOneField(
+        'app.Order',  # or wherever your Order model lives
+        on_delete=models.CASCADE
+    )
+    method = models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='bank_transfer')
+
+    # If "Credit Card" is chosen, store these details:
+    card_name = models.CharField(max_length=100, blank=True, null=True)
+    card_type = models.CharField(max_length=50, blank=True, null=True)  # e.g. Visa, MasterCard
+    card_number = models.CharField(max_length=20, blank=True, null=True)
+    card_cvv = models.CharField(max_length=4, blank=True, null=True)
+    card_expiry = models.DateField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Payment #{self.id} for Order {self.order.id}"
 
 
 
