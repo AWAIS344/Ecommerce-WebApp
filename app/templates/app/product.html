@@ -23,6 +23,7 @@
                                           <div class="zoompro-span">
                                               <img class="blur-up lazyload zoompro" data-zoom-image="{{products.main_image.url}}" alt="" src="{{products.main_image.url}}" />
                                           </div>
+
                                           <div class="product-labels"><span class="lbl on-sale">Sale</span><span class="lbl pr-label1">new</span></div>
                                           <div class="product-buttons">
                                               <a href="https://www.youtube.com/watch?v=93A2jOW5Mog" class="btn popup-video" title="View Video"><i class="icon anm anm-play-r" aria-hidden="true"></i></a>
@@ -116,7 +117,7 @@
                                           <span class="product-price__price product-price__price-product-template product-price__sale product-price__sale--single">
                                               <span id="ProductPrice-product-template"><span class="money">PKR {{products.price}}</span></span>
                                           </span>
-                                          {% if products.saving %}
+                                          {% if saving %}
                                           <span class="discount-badge"> <span class="devider">|</span>&nbsp;
                                               <span>You Save</span>
                                               <span id="SaveAmount-product-template" class="product-single__save-amount">

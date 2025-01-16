@@ -43,6 +43,12 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Labels(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Products(models.Model):
@@ -57,6 +63,7 @@ class Products(models.Model):
     price=models.IntegerField()
     striked_price=models.IntegerField(blank=True,null=True,default=0)
     product_type=models.CharField(max_length=20)
+    labels=models.ManyToManyField(Labels,max_length=20)
     wishlist=models.ManyToManyField(User,related_name='wishlist',blank=True)
     collections=models.CharField(max_length=50)
     main_image= models.ImageField(upload_to='products/')  # Shown by default
@@ -64,8 +71,15 @@ class Products(models.Model):
     tag=models.ManyToManyField('Tag',related_name='products',blank=True)
     sizes = models.ManyToManyField(Size, related_name='products', blank=True)
     color = models.ManyToManyField(Color, related_name='productscolor', blank=True)
+
     brand=models.ForeignKey(Brand, on_delete=models.CASCADE,related_name='brand',blank=True)
 
+
+    @property
+    def discount_percentage(self):
+        if self.striked_price:  # Ensure the striked price exists to avoid division by zero
+            return round(100 - ((self.price / self.striked_price) * 100), 2)
+        return 0  # No discount if no striked price
  
 
     def save(self,*args, **kwargs):

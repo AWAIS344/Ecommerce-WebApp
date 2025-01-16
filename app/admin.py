@@ -15,6 +15,7 @@ admin.site.register(Messages)
 admin.site.register(CartItem)
 admin.site.register(Tag)
 admin.site.register(FAQs)
+admin.site.register(Labels)
 
 
 

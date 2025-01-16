@@ -39,9 +39,17 @@ def Homepage(request):
 
 def shoppage(request):
     # Get all products
-    cart_items = CartItem.objects.filter(user=request.user)
+    
     products = Products.objects.all()
     all_tags=Tag.objects.all()
+
+    percentage=0
+
+
+    for i in products:
+        if i.striked_price:
+            percentage=100-((round(i.price/i.striked_price,2)*100))
+            
 
     top_product=Products.objects.all().order_by("-view_count")[0:4]
 
@@ -96,6 +104,7 @@ def shoppage(request):
 
     # Pass context data to template
     context = {
+        "percentage":percentage,
         "top_product":top_product,
         "all_brands":all_brands,        
         "products": products,
@@ -107,7 +116,6 @@ def shoppage(request):
         "selected_colors":selected_colors,
         'selected_brands': selected_brands,
         "all_tags":all_tags,
-        "cart_items":cart_items
         }
     
     return render(request, "app/shop.html", context)
@@ -115,7 +123,7 @@ def shoppage(request):
 
 
 def Product(request,slug):
-    cart_items = CartItem.objects.filter(user=request.user)
+
     product = get_object_or_404(Products, slug=slug)
     variants = product.variants.select_related('color', 'size')
     form=ReviewForm()
@@ -163,6 +171,8 @@ def Product(request,slug):
 
     sizes=product.sizes.all()
     colors=product.color.all()
+    
+
 
 # Calculate average rating for the product
     avg_rating = product.reviews.aggregate(avg_rating=Avg('rating'))['avg_rating']
@@ -172,10 +182,15 @@ def Product(request,slug):
     percentage=0
     saving=0
     stars_range = range(1, 6)
+
     if product.striked_price:
         saving=(product.striked_price)-(product.price)
         percentage=100-((round(product.price/product.striked_price,2)*100))
 
+    
+    print(saving)
+    
+    print(percentage)
     
 
     avg_rating = product.reviews.aggregate(avg_rating=Avg('rating'))['avg_rating']  # Aggregate instead of annotate
@@ -183,7 +198,7 @@ def Product(request,slug):
  
 
     context={"products":product,"percentage":percentage,"saving":saving,"sizes":sizes,"stars_range": range(1, 6),'average_rating': avg_rating,  # Rounded average rating
-        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors,"variants":variants,"cart_items":cart_items}
+        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors,"variants":variants,"labels":labels}
     return render(request,"app/product.html",context)
 
 def CartView(request):
@@ -308,6 +323,7 @@ def AddToCart(request):
 
 
 def Checkout(request):
+    cart_items = CartItem.objects.filter(user=request.user)
     payment_form=PaymentForm()
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
@@ -379,6 +395,7 @@ def Checkout(request):
     grand_total = subtotal + shipping_cost
 
     context = {
+
         'payment_form': payment_form,
         'form': form,
         'cart_items': cart_items,
@@ -397,13 +414,18 @@ def FAQ(request):
     context={"faq":faq}
     return render(request, 'app/Faqs.html', context)
 
+def AboutUs(request):
+    context={}
+    return render(request, 'app/aboutus.html', context)
+
 def order_confirmation(request):
     return render(request, 'app/thanks.html')
 
 
-def AboutUs(request):
-    context={}
-    return render(request,"app/aboutus.html",context)
+def mini_cart(request):
+    cart_items = CartItem.objects.filter(user=request.user)    
+    context={'cart_items':cart_items}
+    return render(request,"templates/base.html",context)
 
 def Not_found_Error(request):
     context={}
@@ -416,6 +438,8 @@ def Comming_Soon(request):
 def Blog(request):
     context={}
     return render(request,"app/blog.html",context)
+
+
 
 
 def Register(request):

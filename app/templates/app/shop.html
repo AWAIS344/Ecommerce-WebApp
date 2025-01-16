@@ -224,7 +224,7 @@
                                 <div class="grid__item">
                                   <div class="mini-list-item">
                                     <div class="mini-view_image">
-                                        <a class="grid-view-item__link" href="#">
+                                        <a class="grid-view-item__link" href="{% url "product" item.slug %}">
                                             <img class="grid-view-item__image" src="{{item.main_image.url}}" alt="" />
                                         </a>
                                     </div>
@@ -360,9 +360,14 @@
                               <!-- End hover image -->
                               <!-- product label -->
                               <div class="product-labels rectangular">
-                                <span class="lbl on-sale">-16%</span>
-                                <span class="lbl pr-label1">new</span>
-                              </div>
+                                {% if item.striked_price > 0 %}
+                                
+                                <span class="lbl on-sale">-{{item.discount_percentage}}%</span>
+                              {% endif %}
+                                {% for i in item.labels.all %}
+                                <span class="lbl {% if i.name == 'New' %}pr-label3{% endif %} pr-label1">{{i.name}}</span>
+                                {% endfor %}
+                              </div>    
                               <!-- End product label -->
                             </a>
                             <!-- end product image -->
