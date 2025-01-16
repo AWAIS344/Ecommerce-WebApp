@@ -24,6 +24,7 @@
               </tr>
             </thead>
             <tbody>
+              {% if cart_items %}
               {% for item in cart_items %}
               <tr class="cart__row border-bottom line1 cart-flex border-top" data-item-id="{{ item.id }}">
                   <td class="cart__image-wrapper cart-flex-item">
@@ -72,6 +73,13 @@
                 
               </tr>
               {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center">
+                  <p>Your cart is empty.</p>
+                </td>
+              {% endif %}
+              
           </tbody>
          
           
@@ -79,7 +87,7 @@
               <tr>
                 <td colspan="3" class="text-left">
                   <a
-                    href="http://annimexweb.com/"
+                    href="{% url "shop" %}"
                     class="btn--link cart-continue"
                     ><i class="icon icon-arrow-circle-left"></i> Continue
                     shopping</a
@@ -91,7 +99,10 @@
                     name="update"
                     class="btn--link cart-update"
                   >
-                    <i class="fa fa-refresh"></i> Update
+                  <a href="{% url 'cart' %}"> <i class="fa fa-refresh"></i> Update
+                    
+                </a>
+                    
                   </button>
                 </td>
               </tr>

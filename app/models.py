@@ -53,6 +53,7 @@ class Products(models.Model):
     stock_quantity=models.IntegerField()
     last_update=models.DateTimeField(auto_now=True)
     sku=models.CharField(max_length=50)
+    view_count=models.IntegerField(null=True,blank=True)
     price=models.IntegerField()
     striked_price=models.IntegerField(blank=True,null=True,default=0)
     product_type=models.CharField(max_length=20)
