@@ -201,7 +201,11 @@ def CartView(request):
 
     # Normal GET request to display the cart
     cart_items = CartItem.objects.filter(user=request.user)
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
+    for item in cart_items:
+        # Add a subtotal attribute to each item
+        item.subtotal = item.product.price * item.quantity
+
+    total_price = sum(item.subtotal for item in cart_items)
 
     context = {
         "cart_items": cart_items,
@@ -210,6 +214,18 @@ def CartView(request):
     return render(request, "app/cart.html", context)
 
 
+def RemoveCartItem(request, item_id):
+    # Get the cart item for the current user
+    cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+
+    # Remove the cart item
+    cart_item.delete()
+
+    # Optionally, add a success message
+    messages.success(request, "Item removed from the cart.")
+
+    # Redirect back to the cart page
+    return redirect("cart")
 
 def update_cart_item(request):
     if request.method == "POST":

@@ -8,6 +8,7 @@ urlpatterns = [
     path('add-to-cart/', views.AddToCart, name='add_to_cart'),
     path('update-cart-item/', views.update_cart_item, name='update_cart_item'),
     path("cart",views.CartView,name="cart"),
+    path("cart/remove/<int:item_id>/", views.RemoveCartItem, name="remove_cart_item"),
     path("checkout",views.Checkout,name="checkout"),
     path("aboutus",views.AboutUs,name="aboutus"),
     path("faq",views.FAQ,name="faq"),

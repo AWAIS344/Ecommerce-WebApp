@@ -65,22 +65,15 @@
                       <div id="subtotal-{{ item.id }}"><span class="money">{{ item.subtotal }}</span></div>
                   </td>
                   <td class="text-center small--hide">
-                      <a href="#" class="btn btn--secondary cart__remove" title="Remove item">
-                          <i class="icon icon anm anm-times-l"></i>
-                      </a>
-                  </td>
+                    <a href="{% url 'remove_cart_item' item.id %}" class="btn btn--secondary cart__remove" title="Remove item">
+                        <i class="icon icon anm anm-times-l"></i>
+                    </a>
+                </td>
+                
               </tr>
               {% endfor %}
           </tbody>
-          <div class="row">
-              <span class="col-12 col-sm-6 cart__subtotal-title"><strong>Subtotal</strong></span>
-              <span
-                  class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"
-                  id="total-price"
-              >
-                  <span class="money">{{ total_price }}</span>
-              </span>
-          </div>
+         
           
             <tfoot>
               <tr>
