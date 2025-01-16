@@ -39,9 +39,11 @@ def Homepage(request):
 
 def shoppage(request):
     # Get all products
-
+    cart_items = CartItem.objects.filter(user=request.user)
     products = Products.objects.all()
     all_tags=Tag.objects.all()
+
+    top_product=Products.objects.all().order_by("-view_count")[0:4]
 
     all_brands = Brand.objects.all()
     selected_tags = request.GET.getlist('tag')
@@ -94,6 +96,7 @@ def shoppage(request):
 
     # Pass context data to template
     context = {
+        "top_product":top_product,
         "all_brands":all_brands,        
         "products": products,
         "stars_range": range(1, 6),  # To loop for 1-5 stars in the template
@@ -104,6 +107,7 @@ def shoppage(request):
         "selected_colors":selected_colors,
         'selected_brands': selected_brands,
         "all_tags":all_tags,
+        "cart_items":cart_items
         }
     
     return render(request, "app/shop.html", context)
@@ -111,10 +115,19 @@ def shoppage(request):
 
 
 def Product(request,slug):
+    cart_items = CartItem.objects.filter(user=request.user)
     product = get_object_or_404(Products, slug=slug)
     variants = product.variants.select_related('color', 'size')
     form=ReviewForm()
     msgForm=MessageForm()
+
+    if product.view_count is None:
+        product.view_count=1
+
+    else:
+        product.view_count+=1
+    
+    product.save()
 
     if request.POST:
         form_type=request.POST.get("form_type")
@@ -170,7 +183,7 @@ def Product(request,slug):
  
 
     context={"products":product,"percentage":percentage,"saving":saving,"sizes":sizes,"stars_range": range(1, 6),'average_rating': avg_rating,  # Rounded average rating
-        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors,"variants":variants}
+        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors,"variants":variants,"cart_items":cart_items}
     return render(request,"app/product.html",context)
 
 def CartView(request):

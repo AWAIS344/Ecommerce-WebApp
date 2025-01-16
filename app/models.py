@@ -57,6 +57,7 @@ class Products(models.Model):
     price=models.IntegerField()
     striked_price=models.IntegerField(blank=True,null=True,default=0)
     product_type=models.CharField(max_length=20)
+    wishlist=models.ManyToManyField(User,related_name='wishlist',blank=True)
     collections=models.CharField(max_length=50)
     main_image= models.ImageField(upload_to='products/')  # Shown by default
     hover_image= models.ImageField(upload_to='products/')  # Shown on hover
