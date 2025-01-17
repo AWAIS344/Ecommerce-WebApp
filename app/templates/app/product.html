@@ -23,8 +23,12 @@
                                           <div class="zoompro-span">
                                               <img class="blur-up lazyload zoompro" data-zoom-image="{{products.main_image.url}}" alt="" src="{{products.main_image.url}}" />
                                           </div>
-
-                                          <div class="product-labels"><span class="lbl on-sale">Sale</span><span class="lbl pr-label1">new</span></div>
+                                          
+                                          <div class="product-labels">
+                                            {% for labels in products.labels.all  %}
+                                            <span class="lbl {% if labels.name == 'NEW' or labels.name == 'FEATURED' %} pr-label1 {% elif labels.name == 'HOT' %} pr-label2 {% elif labels.name == 'SALE'%} lbl on-sale {% endif %} ">{{labels.name}}</span>
+                                            {% endfor %}
+                                          </div>
                                           <div class="product-buttons">
                                               <a href="https://www.youtube.com/watch?v=93A2jOW5Mog" class="btn popup-video" title="View Video"><i class="icon anm anm-play-r" aria-hidden="true"></i></a>
                                               <a href="#" class="btn prlightbox" title="Zoom"><i class="icon anm anm-expand-l-arrows" aria-hidden="true"></i></a>

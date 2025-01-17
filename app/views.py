@@ -198,7 +198,7 @@ def Product(request,slug):
  
 
     context={"products":product,"percentage":percentage,"saving":saving,"sizes":sizes,"stars_range": range(1, 6),'average_rating': avg_rating,  # Rounded average rating
-        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors,"variants":variants,"labels":labels}
+        'stars_range': stars_range,"form":form,"msgForm":msgForm,"colors":colors,"variants":variants,}
     return render(request,"app/product.html",context)
 
 def CartView(request):

@@ -365,8 +365,8 @@
                                 <span class="lbl on-sale">-{{item.discount_percentage}}%</span>
                               {% endif %}
                                 {% for i in item.labels.all %}
-                                <span class="lbl {% if i.name == 'New' %}pr-label3{% endif %} pr-label1">{{i.name}}</span>
-                                {% endfor %}
+                                <span class="lbl {% if i.name == 'NEW' or i.name == 'FEATURED' %} pr-label1 {% elif i.name == 'HOT' %} pr-label2 {% elif i.name == 'SALE'%} lbl on-sale {% endif %} ">{{i.name}}</span>
+                                {% endfor %} 
                               </div>    
                               <!-- End product label -->
                             </a>
