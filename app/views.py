@@ -4,6 +4,7 @@ from django.db.models import Prefetch
 from django.shortcuts import render , redirect , get_object_or_404 , HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
 from django.http import JsonResponse
@@ -188,10 +189,6 @@ def Product(request,slug):
         percentage=100-((round(product.price/product.striked_price,2)*100))
 
     
-    print(saving)
-    
-    print(percentage)
-    
 
     avg_rating = product.reviews.aggregate(avg_rating=Avg('rating'))['avg_rating']  # Aggregate instead of annotate
 
@@ -291,7 +288,7 @@ def AddToCart(request):
         size = request.POST.get("size")
 
         # Debugging line: Print the received quantity
-        print(f"Received quantity in backend: {quantity}")  # Debugging line
+ 
         
         if not color or not size:
             return JsonResponse({"error": "Color and size are required."}, status=400)
@@ -320,6 +317,37 @@ def AddToCart(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
+
+@csrf_exempt
+def BuyNow(request):
+    if request.method == "POST":
+        try:
+            # Parse the request body
+            body = json.loads(request.body)
+            slug = body.get("slug")
+            quantity = int(body.get("quantity", 1))
+
+            # Fetch the product
+            product = get_object_or_404(Products, slug=slug)
+
+            # Create a temporary cart for the checkout process
+            CartItem.objects.filter(user=request.user).delete()  # Clear previous cart items
+            cart_item = CartItem.objects.create(
+                user=request.user,
+                product=product,
+                quantity=quantity,
+                color='Default',  # Add default or pass from frontend
+                size='Default'    # Add default or pass from frontend
+            )
+
+            # Redirect to checkout
+            return JsonResponse({"redirect_url": "/checkout/"})
+        except Products.DoesNotExist:
+            return JsonResponse({"error": "Product not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 
 def Checkout(request):
