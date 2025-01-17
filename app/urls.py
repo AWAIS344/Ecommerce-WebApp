@@ -21,7 +21,7 @@ urlpatterns = [
     path("accounts/register",views.Register,name="register"),
     path("wishlist",views.Wishlist,name="wishlist"),
     path('thankyou/', views.order_confirmation, name='order_confirmation'),
-    path("buy-now/", views.BuyNow, name="buy_now"),
+    path("buy-now/", views.buy_now, name="buy-now"),
 
     
 ]
