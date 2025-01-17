@@ -341,12 +341,16 @@ def buy_now(request):
         # Fetch the product
         product = get_object_or_404(Products, slug=slug)
 
-        # Simulate adding to cart or creating a temporary order
-        # Optional: Save details to session or database if needed
+        # Save details to session (if required for checkout)
+        request.session['buy_now'] = {
+            "product": slug,
+            "quantity": quantity,
+            "color": color,
+            "size": size,
+        }
 
-        # Construct the redirect URL for checkout
-        redirect_url = f"/checkout/?product={slug}&quantity={quantity}&color={color}&size={size}"
-        return JsonResponse({"redirect_url": redirect_url})
+        # Redirect to the checkout page
+        return JsonResponse({"redirect_url": "/checkout/"})
 
     # If not a POST request, return an error
     return JsonResponse({"error": "Invalid request method."}, status=405)
