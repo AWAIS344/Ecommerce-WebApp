@@ -705,6 +705,35 @@ function brand_filter() {
   // Initialize
   brand_filter();
 
+
+  document.querySelectorAll('.buy-now-button').forEach(button => {
+    button.addEventListener('click', function () {
+        const productSlug = this.dataset.productSlug;
+        const quantity = this.dataset.productQuantity;
+
+        fetch('/buy-now/', {
+            method: 'POST',
+            body: JSON.stringify({
+                slug: productSlug,
+                quantity: quantity,
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken, // Include CSRF token for security
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url; // Redirect to checkout page
+            } else if (data.error) {
+                alert(data.error); // Show error message
+            }
+        });
+    });
+});
+
+
 /*-----------------------------------
    15. Size Button Filter
 -------------------------------------*/
