@@ -351,7 +351,7 @@ def buy_now(request):
         }
 
         # Redirect to the checkout page
-        return JsonResponse({"redirect_url": "/checkout/"})
+        return JsonResponse({"redirect_url": "/checkout"})
 
     # If not a POST request, return an error
     return JsonResponse({"error": "Invalid request method."}, status=405)
@@ -441,6 +441,124 @@ def buy_now(request):
 
 #     return render(request, 'app/checkout.html', context)
 
+# def Checkout(request):
+#     payment_form = PaymentForm()
+#     cart_items = CartItem.objects.filter(user=request.user)
+#     buy_now_data = request.session.pop('buy_now', None)  # Retrieve and clear Buy Now session data
+
+#     if request.method == 'POST':
+#         form = CheckoutForm(request.POST)
+#         payment_form = PaymentForm(request.POST)
+
+#         if form.is_valid() and payment_form.is_valid():
+#             # Save checkout details
+#             checkout = form.save(commit=False)
+#             checkout.user = request.user
+#             checkout.save()
+
+#             # Create the Order object
+#             order = Order.objects.create(
+#                 user=request.user,
+#                 first_name=checkout.first_name,
+#                 last_name=checkout.last_name,
+#                 email=checkout.email,
+#                 phone_number=checkout.phone_number,
+#                 address=checkout.address,
+#                 apartment=checkout.appartment,
+#                 city=checkout.city,
+#                 postal_code=checkout.postal_code,
+#                 country=checkout.country,
+#                 state=checkout.state,
+#                 notes=checkout.notes,
+#                 terms_accepted=False,
+#                 total_price=0,  # To calculate later
+#             )
+
+#             payment = payment_form.save(commit=False)
+#             payment.order = order
+#             payment.save()
+
+#             if buy_now_data:
+#                 # Handle Buy Now item
+#                 product = Products.objects.get(id=buy_now_data["product_id"])
+#                 OrderItem.objects.create(
+#                     order=order,
+#                     product=product,
+#                     quantity=buy_now_data["quantity"],
+#                     price=product.price,
+#                     color=buy_now_data["color"],
+#                     size=buy_now_data["size"],
+#                 )
+#                 total_price = product.price * buy_now_data["quantity"]
+#             else:
+#                 # Handle Cart Items
+#                 total_price = 0
+#                 for item in cart_items:
+#                     OrderItem.objects.create(
+#                         order=order,
+#                         product=item.product,
+#                         quantity=item.quantity,
+#                         price=item.product.price,
+#                         color=item.color,
+#                         size=item.size,
+#                     )
+#                     total_price += item.product.price * item.quantity
+
+#                 # Clear the cart
+#                 cart_items.delete()
+
+#             # Calculate total price in the Order and save
+#             order.total_price = total_price
+#             order.save()
+
+#             messages.success(request, 'Your order has been placed successfully!')
+#             return redirect('order_confirmation')
+#         else:
+#             messages.error(request, 'Please fill in all the required fields.')
+#             return redirect('checkout')
+
+#     else:
+#         form = CheckoutForm()
+
+#     # --- Handle displaying items in the checkout ---
+#     if buy_now_data:
+#         # Display only the Buy Now product
+#         product = Products.objects.get(id=buy_now_data["product_id"])
+#         subtotal = product.price * buy_now_data["quantity"]
+#         grand_total = subtotal + 50  # Add shipping
+#         context = {
+#             'payment_form': payment_form,
+#             'form': form,
+#             'buy_now': {
+#                 'product': product,
+#                 'quantity': buy_now_data["quantity"],
+#                 'color': buy_now_data["color"],
+#                 'size': buy_now_data["size"],
+#                 'subtotal': subtotal,
+#             },
+#             'shipping_cost': 50,
+#             'grand_total': grand_total,
+#         }
+#     else:
+#         # Display cart items
+#         for cart_item in cart_items:
+#             cart_item.subtotal = cart_item.quantity * cart_item.product.price
+
+#         shipping_cost = 50
+#         subtotal = sum(item.subtotal for item in cart_items)
+#         grand_total = subtotal + shipping_cost
+
+#         context = {
+#             'payment_form': payment_form,
+#             'form': form,
+#             'cart_items': cart_items,
+#             'subtotal': subtotal,
+#             'shipping_cost': shipping_cost,
+#             'grand_total': grand_total,
+#         }
+
+#     return render(request, 'app/checkout.html', context)
+
 def Checkout(request):
     payment_form = PaymentForm()
     cart_items = CartItem.objects.filter(user=request.user)
@@ -478,18 +596,24 @@ def Checkout(request):
             payment.order = order
             payment.save()
 
-            if buy_now_data:
+            if buy_now_data and all(
+                key in buy_now_data for key in ["product_id", "quantity", "color", "size"]
+            ):
                 # Handle Buy Now item
-                product = Products.objects.get(id=buy_now_data["product_id"])
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    quantity=buy_now_data["quantity"],
-                    price=product.price,
-                    color=buy_now_data["color"],
-                    size=buy_now_data["size"],
-                )
-                total_price = product.price * buy_now_data["quantity"]
+                try:
+                    product = Products.objects.get(id=buy_now_data["product_id"])
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        quantity=buy_now_data["quantity"],
+                        price=product.price,
+                        color=buy_now_data["color"],
+                        size=buy_now_data["size"],
+                    )
+                    total_price = product.price * buy_now_data["quantity"]
+                except Products.DoesNotExist:
+                    messages.error(request, "The selected product does not exist.")
+                    return redirect('cart')
             else:
                 # Handle Cart Items
                 total_price = 0
@@ -521,24 +645,30 @@ def Checkout(request):
         form = CheckoutForm()
 
     # --- Handle displaying items in the checkout ---
-    if buy_now_data:
-        # Display only the Buy Now product
-        product = Products.objects.get(id=buy_now_data["product_id"])
-        subtotal = product.price * buy_now_data["quantity"]
-        grand_total = subtotal + 50  # Add shipping
-        context = {
-            'payment_form': payment_form,
-            'form': form,
-            'buy_now': {
-                'product': product,
-                'quantity': buy_now_data["quantity"],
-                'color': buy_now_data["color"],
-                'size': buy_now_data["size"],
-                'subtotal': subtotal,
-            },
-            'shipping_cost': 50,
-            'grand_total': grand_total,
-        }
+    if buy_now_data and all(
+        key in buy_now_data for key in ["product_id", "quantity", "color", "size"]
+    ):
+        try:
+            # Display only the Buy Now product
+            product = Products.objects.get(id=buy_now_data["product_id"])
+            subtotal = product.price * buy_now_data["quantity"]
+            grand_total = subtotal + 50  # Add shipping
+            context = {
+                'payment_form': payment_form,
+                'form': form,
+                'buy_now': {
+                    'product': product,
+                    'quantity': buy_now_data["quantity"],
+                    'color': buy_now_data["color"],
+                    'size': buy_now_data["size"],
+                    'subtotal': subtotal,
+                },
+                'shipping_cost': 50,
+                'grand_total': grand_total,
+            }
+        except Products.DoesNotExist:
+            messages.error(request, "The selected product does not exist.")
+            return redirect('cart')
     else:
         # Display cart items
         for cart_item in cart_items:
@@ -558,6 +688,7 @@ def Checkout(request):
         }
 
     return render(request, 'app/checkout.html', context)
+
 
 
 # views.py
