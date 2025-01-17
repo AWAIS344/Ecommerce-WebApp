@@ -1042,6 +1042,62 @@ qnt_incre();
 
 
 
+// /*----------------------------------
+//   Add to Cart Functionality
+// ------------------------------------*/
+// $(".product-form__cart-submit").on("click", function () {
+//     var productSlug = $(this).data("product-slug");
+
+//     // Fetch the updated quantity directly from the input field
+//     var quantity = parseInt($("#Quantity").val());  // Get the value from the input field
+
+//     // Debugging: Log the raw quantity value just before sending
+//     console.log("Before sending, Raw Quantity Field Value:", $("#Quantity").val());
+//     console.log("Sending quantity:", quantity);
+
+//     var color = $("input[name='color']:checked").val();
+//     var size = $("input[name='size']:checked").val();
+
+//     // Ensure quantity is valid
+//     if (!quantity || quantity < 1) {
+//         alert("Please select a valid quantity.");
+//         return;
+//     }
+
+//     if (!color || !size) {
+//         alert("Please select both color and size.");
+//         return;
+//     }
+
+//     // Debugging: Log the data to be sent
+//     console.log("Sending data to backend:", {
+//         csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+//         slug: productSlug,
+//         quantity: quantity,
+//         color: color,
+//         size: size
+//     });
+
+//     // Proceed with the AJAX request
+//     $.ajax({
+//         url: "/add-to-cart/",
+//         type: "POST",
+//         data: {
+//             csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+//             slug: productSlug,
+//             quantity: quantity,
+//             color: color,
+//             size: size,
+//         },
+//         success: function (response) {
+//             alert(response.message + ". Quantity: " + response.quantity);
+//         },
+//         error: function (xhr, status, error) {
+//             alert("Something went wrong. Please try again.");
+//         },
+//     });
+// });
+
 /*----------------------------------
   Add to Cart Functionality
 ------------------------------------*/
@@ -1049,9 +1105,8 @@ $(".product-form__cart-submit").on("click", function () {
     var productSlug = $(this).data("product-slug");
 
     // Fetch the updated quantity directly from the input field
-    var quantity = parseInt($("#Quantity").val());  // Get the value from the input field
+    var quantity = parseInt($("#Quantity").val());
 
-    // Debugging: Log the raw quantity value just before sending
     console.log("Before sending, Raw Quantity Field Value:", $("#Quantity").val());
     console.log("Sending quantity:", quantity);
 
@@ -1069,7 +1124,6 @@ $(".product-form__cart-submit").on("click", function () {
         return;
     }
 
-    // Debugging: Log the data to be sent
     console.log("Sending data to backend:", {
         csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
         slug: productSlug,
@@ -1097,6 +1151,66 @@ $(".product-form__cart-submit").on("click", function () {
         },
     });
 });
+
+/*----------------------------------
+  Buy Now Functionality
+------------------------------------*/
+$(".shopify-payment-button__button").on("click", function () {
+    var productSlug = $(".product-form__cart-submit").data("product-slug");
+
+    // Fetch the updated quantity directly from the input field
+    var quantity = parseInt($("#Quantity").val());
+
+    console.log("Before sending, Raw Quantity Field Value:", $("#Quantity").val());
+    console.log("Sending quantity:", quantity);
+
+    var color = $("input[name='color']:checked").val();
+    var size = $("input[name='size']:checked").val();
+
+    // Ensure quantity is valid
+    if (!quantity || quantity < 1) {
+        alert("Please select a valid quantity.");
+        return;
+    }
+
+    if (!color || !size) {
+        alert("Please select both color and size.");
+        return;
+    }
+
+    console.log("Sending data to backend for Buy Now:", {
+        csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+        slug: productSlug,
+        quantity: quantity,
+        color: color,
+        size: size
+    });
+
+    // Proceed with the AJAX request
+    $.ajax({
+        url: "/buy-now/", // Separate endpoint for Buy Now
+        type: "POST",
+        data: {
+            csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+            slug: productSlug,
+            quantity: quantity,
+            color: color,
+            size: size,
+        },
+        success: function (response) {
+            if (response.redirect_url) {
+                // Redirect to the checkout page
+                window.location.href = response.redirect_url;
+            } else {
+                alert("Unable to proceed. Please try again.");
+            }
+        },
+        error: function (xhr, status, error) {
+            alert("Something went wrong. Please try again.");
+        },
+    });
+});
+
 
 
 // document.getElementById("checkout-form").addEventListener("submit", function (event) {

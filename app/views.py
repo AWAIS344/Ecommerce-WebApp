@@ -319,35 +319,37 @@ def AddToCart(request):
 
 
 @csrf_exempt
-def BuyNow(request):
+def buy_now(request):
     if request.method == "POST":
+        # Parse POST data
+        slug = request.POST.get("slug")
+        quantity = request.POST.get("quantity")
+        color = request.POST.get("color")
+        size = request.POST.get("size")
+
+        # Validate input
+        if not slug or not color or not size or not quantity:
+            return JsonResponse({"error": "Invalid input. Missing required fields."}, status=400)
+
         try:
-            # Parse the request body
-            body = json.loads(request.body)
-            slug = body.get("slug")
-            quantity = int(body.get("quantity", 1))
+            quantity = int(quantity)
+            if quantity < 1:
+                raise ValueError
+        except ValueError:
+            return JsonResponse({"error": "Invalid quantity."}, status=400)
 
-            # Fetch the product
-            product = get_object_or_404(Products, slug=slug)
+        # Fetch the product
+        product = get_object_or_404(Products, slug=slug)
 
-            # Create a temporary cart for the checkout process
-            CartItem.objects.filter(user=request.user).delete()  # Clear previous cart items
-            cart_item = CartItem.objects.create(
-                user=request.user,
-                product=product,
-                quantity=quantity,
-                color='Default',  # Add default or pass from frontend
-                size='Default'    # Add default or pass from frontend
-            )
+        # Simulate adding to cart or creating a temporary order
+        # Optional: Save details to session or database if needed
 
-            # Redirect to checkout
-            return JsonResponse({"redirect_url": "/checkout/"})
-        except Products.DoesNotExist:
-            return JsonResponse({"error": "Product not found"}, status=404)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
+        # Construct the redirect URL for checkout
+        redirect_url = f"/checkout/?product={slug}&quantity={quantity}&color={color}&size={size}"
+        return JsonResponse({"redirect_url": redirect_url})
 
-    return JsonResponse({"error": "Invalid request"}, status=400)
+    # If not a POST request, return an error
+    return JsonResponse({"error": "Invalid request method."}, status=405)
 
 
 def Checkout(request):

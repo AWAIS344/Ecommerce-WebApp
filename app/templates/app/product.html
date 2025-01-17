@@ -188,14 +188,20 @@
                                             </div>
                                         </div>
                                         <div class="product-form__item--submit">
-                                            <button type="button" name="add" class="btn product-form__cart-submit" data-product-slug="{{ products.slug }}">
-                                                <span>Add to cart</span>
-                                            </button>
-                                        </div>
-                                        <div class="shopify-payment-button" data-shopify="payment-button">
-                                            <button type="button" class="shopify-payment-button__button shopify-payment-button__button--unbranded">Buy it now</button>
-                                        </div> 
+                                          <button type="button" name="add" class="btn product-form__cart-submit" data-product-slug="{{ products.slug }}">
+                                              <span>Add to cart</span>
+                                          </button>
                                       </div>
+                                      <div class="shopify-payment-button" data-shopify="payment-button">
+                                          <button 
+                                              type="button" 
+                                              class="shopify-payment-button__button shopify-payment-button__button--unbranded buy-now-button" 
+                                              data-product-slug="{{ products.slug }}"
+                                              data-product-quantity="1">
+                                              Buy it now
+                                          </button>
+                                      </div>
+                                      
                                     {% else %}
                                     
                                     <div class="product-action clearfix"> 
