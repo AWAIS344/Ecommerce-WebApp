@@ -45,11 +45,7 @@ def shoppage(request):
     all_tags=Tag.objects.all()
 
     percentage=0
-
-
-
-            
-
+    
     top_product=Products.objects.all().order_by("-view_count")[0:4]
 
     all_brands = Brand.objects.all()
