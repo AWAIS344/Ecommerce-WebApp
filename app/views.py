@@ -47,9 +47,7 @@ def shoppage(request):
     percentage=0
 
 
-    for i in products:
-        if i.striked_price:
-            percentage=100-((round(i.price/i.striked_price,2)*100))
+
             
 
     top_product=Products.objects.all().order_by("-view_count")[0:4]
