@@ -82,6 +82,7 @@ class Products(models.Model):
         return 0  # No discount if no striked price
  
 
+
     def save(self,*args, **kwargs):
         if not self.id:
             self.slug=slugify(self.name)
@@ -108,7 +109,7 @@ class FAQs(models.Model):
 
 class Review(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Ties the review to a user
+    user = models.ForeignKey(User, on_delete=models.CASCADE) 
     name=models.CharField(max_length=50)
     rating = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)] , null=True , blank=True
